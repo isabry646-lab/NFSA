@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بلاتفورم نظام سلامة الغذاء - العبد للأغذية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            elabd: {
+              brown: '#5A2D22',
+              dark: '#3E1E16',
+              rose: '#F0A39A',
+              roseLight: '#FCECE9',
+              roseDark: '#D97B70',
+              cream: '#F6D5B0',
+              bg: '#FDF8F5'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background-color: #FDF8F5; color: #3E1E16; }
+    .logo-font { font-family: 'Amiri', serif; }
+    .tab-btn.active { 
+      background-color: #F0A39A; 
+      color: #3E1E16; 
+      font-weight: 900; 
+      border-right: 5px solid #5A2D22;
+    }
+    .doc-btn { transition: all 0.2s ease; }
+    .doc-btn:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 12px 24px -6px rgba(90, 45, 34, 0.16); 
+      border-color: #F0A39A;
+    }
+
+    /* ورقة الـ Word الرسمية للطباعة والعرض */
+    .word-doc-sheet {
+      background: #ffffff;
+      color: #000000;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 36px 44px;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      line-height: 1.75;
+    }
+    .word-doc-sheet h1.doc-main-title {
+      font-size: 21px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 20px;
+      text-decoration: underline;
+    }
+    .word-doc-sheet h2.doc-sec-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin-top: 18px;
+      margin-bottom: 6px;
+      background-color: #fdf2f0;
+      padding: 5px 10px;
+      border-right: 4px solid #5A2D22;
+    }
+    .word-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px 0;
+    }
+    .word-table th, .word-table td {
+      border: 1px solid #000000;
+      padding: 8px 10px;
+      font-size: 13.5px;
+      color: #000000;
+    }
+    .word-table th {
+      font-weight: 800;
+      text-align: center;
+      background-color: #f3f4f6;
+    }
+
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      body { background: #ffffff !important; height: auto !important; overflow: visible !important; }
+      .no-print { display: none !important; }
+      #mainContainer { padding: 0 !important; overflow: visible !important; }
+      #formattedViewer { display: block !important; }
+      .word-doc-sheet { border: none !important; box-shadow: none !important; padding: 0 !important; max-width: 100% !important; }
+    }
+  </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+  <!-- الهيدر العلوي بألوان براند العبد -->
+  <header class="no-print bg-elabd-brown text-white px-5 py-3 flex flex-wrap items-center justify-between gap-3 border-b-4 border-elabd-rose shadow-md shrink-0">
+    <div class="flex items-center gap-3.5">
+      <div class="w-13 h-13 px-3 py-1.5 rounded-full bg-elabd-rose border-2 border-elabd-cream flex flex-col items-center justify-center shadow-inner leading-none">
+        <span class="text-[9px] font-bold text-elabd-brown">للأغذية</span>
+        <span class="logo-font text-lg font-black text-elabd-brown -mt-0.5">العَبْد</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-black text-base md:text-lg text-elabd-cream">بلاتفورم نظام سلامة الغذاء - العبد للأغذية</h1>
+          <span class="bg-elabd-rose text-elabd-dark text-[11px] font-black px-2.5 py-0.5 rounded-full">NFSA System</span>
+        </div>
+        <p class="text-[11px] text-elabd-roseLight/80">منصة التفتيش السريع لمدير الفرع — تعمل على GitHub Pages</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2.5">
+      <input 
+        type="text" 
+        id="searchInput" 
+        oninput="renderButtonsGrid()" 
+        placeholder="ابحث (استلام، عربة، MSDS، فلوتام، إيميدا، فينيكس، روديكس...)" 
+        class="w-64 md:w-80 bg-elabd-dark text-white placeholder-elabd-cream/60 text-xs rounded-xl px-4 py-2.5 border border-elabd-rose/40 focus:border-elabd-rose focus:outline-none"
+      />
+    </div>
+  </header>
+
+  <!-- الجسم الرئيسي -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- القائمة الجانبية -->
+    <aside class="no-print w-64 md:w-72 bg-white border-l border-elabd-rose/30 flex flex-col shrink-0 shadow-sm">
+      <div class="p-3.5 border-b border-elabd-rose/20 bg-elabd-roseLight/40">
+        <div class="text-xs font-extrabold text-elabd-brown/80 mb-2">أقسام النظام:</div>
+        <button onclick="selectTab('ALL')" id="btn-ALL" class="tab-btn w-full text-right text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center justify-between text-elabd-brown hover:bg-elabd-roseLight">
+          <span>🌐 كل الأقسام والوثائق</span>
+          <span id="totalDocsBadge" class="bg-elabd-brown text-elabd-cream text-[10px] px-2 py-0.5 rounded-full font-extrabold">0</span>
+        </button>
+      </div>
+      <div id="sidebarTabs" class="flex-1 overflow-y-auto p-2.5 space-y-1.5"></div>
+    </aside>
+
+    <!-- منطقة العمل -->
+    <main class="flex-1 overflow-y-auto p-5 md:p-6 space-y-6" id="mainContainer">
+      <div id="buttonsSection" class="no-print space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-3 rounded-2xl border border-elabd-rose/30 shadow-sm">
+          <h2 id="currentTabTitle" class="text-base md:text-lg font-black text-elabd-brown flex items-center gap-2"></h2>
+          <span class="text-xs text-elabd-brown/70 font-bold">اضغط على أي زر بالأسفل لفتح الوثيقة أو طباعتها 👇</span>
+        </div>
+        <div id="docButtonsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- شاشة العرض والطباعة -->
+      <div id="formattedViewer" class="hidden"></div>
+    </main>
+  </div>
+
+  <script>
+    // =========================================================================
+    // قاعدة بيانات السيستم المدمجة (تفتح فوراً بدون انتظار تحميل)
+    // ويمكنك إضافة أي قسم أو ملف PDF ترفعه على GitHub هنا مباشرة
+    // =========================================================================
+    const SYSTEM_TABS = [
+      {
+        id: 'TAB_RECEIVING',
+        name: 'الاستلام',
+        documents: [
+          {
+            id: 'REC_SOP',
+            title: 'إجراء استلام المنتجات',
+            type: 'procedure',
+            customHtml: getReceivingProcedureHTML()
+          },
+          {
+            id: 'REC_WI',
+            title: 'تعليمات الاستلام',
+            type: 'instruction',
+            customHtml: getReceivingInstructionHTML()
+          },
+          {
+            id: 'REC_FORM',
+            title: 'نموذج استلام عربة',
+            type: 'form',
+            customHtml: getVehicleFormHTML()
+          }
+        ]
+      },
+      {
+        id: 'TAB_PEST',
+        name: 'المكافحة (MSDS)',
+        documents: [
+          {
+            id: 'MSDS_1',
+            title: 'MSDS - 1. نشرة الأمان وإخطار تسجيل إيميدا ستار Imidastar 35% SC',
+            type: 'msds',
+            pdfFile: '1- MSDS-for-Imidacloprid 35 % Sc اميدا ستار.pdf', // إذا رفعت ملف الـ PDF بنفس الاسم على GitHub سيفتح كملف أصلي أيضاً
+            rawText: `MSDS - إيميدا ستار Imidastar 35% SC (Bait) - طعم مركز معلق لمكافحة الذباب البالغ
+1. بيانات التسجيل بهيئة الدواء المصرية (Registration License No. 2288/2025)
+البند | البيان الرسمي المعتمد في إخطار التسجيل
+الاسم التجاري (Trade Name) | إميداستار 35% مركز معلق (طعم) - Imidastar 35% SC (Bait)
+المادة الفعالة والتركيز | Imidacloprid (95% min TC) 35% w/v (يحتوي اللتر على 350 جرام إميداكلوبرايد) - CAS No: 138261-41-3
+الصيغة الكيميائية | C9H10ClN5O2 | الرقم الهيدروجيني (pH): 6.73 | الكثافة: 0.844 جم/مل | الانصهار: 143.6°C
+رقم التسجيل وتاريخ السريان | رقم التسجيل: 2288 / 2025 | تاريخ الإصدار: 02/12/2025 | ساري حتى: 01/12/2030
+الشركة المرخصة والمصنعة | شركة ستاركيم لتصنيع الكيماويات ش.م.م (StarChem Industrial Chemicals) - المنطقة الصناعية السادسة - 6 أكتوبر
+الآفة المستهدفة ومعدل التخفيف | الذباب البالغ (Adult Fly) | معدل التخفيف: 29 سم3 / 10 لتر ماء (طعم بالرشاشة الظهرية)
+2. بيان التركيب الكيميائي المعتمد (Declaration of Composition)
+المكون (Ingredient Name) | المصدر (Source) | النسبة (Conc. w/v%) | الوظيفة (Function)
+Imidacloprid (min 95% T.C) | Anhui Huaxing Chemical Industry - China | 35% | مادة قاتلة للحشرات (Killing agent)
+Veegum | غير فعال (Inactive) | 9% | مادة ناشرة (Dispersing agent)
+Kelzan | غير فعال (Inactive) | 2% | مادة مغلظة للقوام (Thickening agent)
+(Z)-9-tricosene | فرمون جاذب | 0.05% | جاذب للذباب (Attractant)
+Water (ماء) | مذيب | Up to 100% | مذيب (Solvent)
+3. الأخطار والإسعافات الأولية والسمية (MSDS Sections 3, 4 & 11)
+• تحذيرات الأخطار: ضار في حالة الابتلاع أو الاستنشاق، يسبب تهيجاً متوسطاً للعين، وسام جداً للافقاريات المائية والنحل.
+• الإسعافات الأولية: للجلد يغسل بالماء والصابون لمدة 15-20 دقيقة؛ للعين تشطف ببطء بالماء الجاري لمدة 15-20 دقيقة؛ للابتلاع يشرب كوب ماء إذا كان المصاب واعياً مع عدم التقيؤ؛ ولا يوجد عقار مضاد محدد (العلاج عرضي).
+• السمية الحادة (Acute Toxicity): الفموية (Oral LD50 Rat): 425-475 mg/kg | الجلدية (Dermal LD50): > 5000 mg/kg | الاستنشاق (LC50): > 5.33 mg/L.`
+          },
+          {
+            id: 'MSDS_2',
+            title: 'MSDS - 2. نشرة الأمان وإخطار تسجيل فلوتام بلس Flutam Plus 25% WDG',
+            type: 'msds',
+            rawText: `MSDS - فلوتام بلس Flutam Plus 25% WDG (Bait) - حبيبات قابلة للانتشار في الماء (طعم للذباب)
+1. بيانات التسجيل بهيئة الدواء المصرية (Registration License No. 2026/2021)
+البند | البيان الرسمي المعتمد في إخطار التسجيل
+الاسم التجاري (Trade Name) | فلوتام بلس 25% حبيبات قابلة للانتشار في الماء (طعم) - Flutam Plus 25% WDG (Bait)
+المادة الفعالة والتركيز | Thiamethoxam (98% min TC) 25% w/w (250 جم/كجم) - CAS No: 153719-23-4 | الصيغة: C8H10ClN5O3S
+رقم التسجيل وتاريخ السريان | رقم التسجيل: 2026 / 2021 (وبالنشرة 2007/2021) | تاريخ الجلسة: 28/12/2021 | الانتهاء: 27/12/2026
+الشركة المرخصة والمصنعة | شركة ستاركيم لتصنيع الكيماويات ش.م.م (Starchem Industrial Chemicals)
+الآفة المستهدفة ومعدل التخفيف | الذباب البالغ (Adult Fly) | التخفيف: 40 جرام / 10 لتر ماء (4 جم فلوتام + 4 جم سكر لكل 1 لتر ماء بالفرع)
+2. التركيب ومكونات المستحضر والخواص (MSDS Sections 2 & 9)
+المكون (Ingredient) | النسبة المئوية (% Present) | التصنيف والخواص
+Thiamethoxam (ثياميثوكسام) | ± 25% | ضار (Harmful) - حبيبات بني فاتح إلى بيج عديمة الرائحة | الكثافة: 0.47 جم/سم3 | pH: 9.4
+Starch (نشا) | ± 60% | مهيج خفيف (Mild irritant)
+Diatomaceous earth (تراب دياتومي) | ± 5% | مهيج خفيف (Mild irritant)
+Dispersing & wetting agent | ± 3% | رمز الخطر: Xi | عبارات الخطر: R20/22, R36/37/38 | عبارات السلامة: S2, S13, S20/21, S24/25, S36/37/39
+3. الإسعافات الأولية والسمية والتخلص الآمن (MSDS Sections 4, 11, 13 & 14)
+• الإسعافات الأولية: للعين تغسل بالماء البارد لمدة 15-20 دقيقة؛ للجلد يغسل بالماء البارد وصابون غير كاشط؛ للابتلاع يمنع دفع المصاب للتقيؤ ويطلب الطبيب فوراً (لا يوجد ترياق محدد).
+• السمية الحادة: الفموية (Oral LD50 Rat): 1563 mg/kg للمادة الخام و > 2000 mg/kg للمستحضر | الجلدية: > 2800 mg/kg | UN Number: 3077 (Class 9).
+• التخلص من العبوات: الغسيل الثلاثي (Triple Rinse) بـ 10% من حجم العبوة وإضافتها لتانك الرش، ثم ثقب وتسطيح العبوة ودفنها.`
+          },
+          {
+            id: 'MSDS_3',
+            title: 'MSDS - 3. إخطار التسجيل وشهادة التركيب والبطاقة لمبيد فينيكس Fenix 20% SC',
+            type: 'msds',
+            rawText: `MSDS - فينيكس Fenix 20% SC Bait - طعم مركز معلق لمكافحة الصراصير
+1. بيانات إخطار إعادة التسجيل النهائي بهيئة الدواء المصرية (رقم 1925/2025)
+البند | البيان الرسمي المعتمد في إخطار التسجيل
+الاسم التجاري (Trade Name) | فينيكس 20% معلق مركز (طعم) - Fenix 20% SC Bait
+المادة الفعالة والتركيز | Fipronil (95% min TC) 20% w/v (يحتوي اللتر على 200 جرام فيبرونيل)
+الشكل الصيدلي والخواص | سائل لزج أبيض اللون ذو رائحة مميزة - Suspension concentrate (Bait)
+رقم التسجيل وتاريخ السريان | رقم التسجيل: 1925 / 2025 | تاريخ الجلسة: 02/09/2025 | ساري حتى: 01/09/2030
+الشركة المرخصة والمصنعة | شركة ستاركيم لتصنيع الكيماويات ش.م.م - المنطقة الصناعية السادسة - 6 أكتوبر (قطعة 35)
+الآفة المستهدفة ومعدل التخفيف | الصراصير (Cockroaches) | التخفيف: 8 سم3 / 10 لتر ماء (طعم سائل بالرشاشة الظهرية)
+2. شهادة بيان التركيب الكيميائي المعتمد (Declaration of Composition)
+اسم المكون (Ingredient Name) | المصدر (Source) | النسبة (Conc. w/v%) | الوظيفة (Function)
+Fipronil (min. 95% T.C) | Jiangsu Flag Chemical Industry - China | 20% | مادة قاتلة (Killing agent)
+Sugar (سكر) | غير فعال (Inactive) | 3% | مادة جاذبة للطعم (Attractant)
+Veegum | غير فعال (Inactive) | 15% | مادة ناشرة (Dispersant)
+Kelzan | غير فعال (Inactive) | 2% | مادة مغلظة للقوام (Thickening agent)
+Water (ماء) | مذيب | Up to 100% | مذيب (Solvent)
+3. احتياطات الأمان والإسعافات الأولية (البطاقة المعتمدة)
+• احتياطات الأمان: ارتداء الملابس الواقية الكاملة (أفرول، قفاز، قناع، نظارة)، غسيل وكي الملابس منفردة، ومنع الأكل أو الشرب أو التدخين أثناء الرش.
+• الإسعافات الأولية: في حالة تلوث الجلد يغسل جيداً بالماء والصابون؛ في حالة تلوث العين تغسل بالماء لمدة 15 دقيقة؛ لا يوجد عقار مضاد، وفي حالة التسمم ينقل المصاب لأقرب مركز سموم (الخط الساخن: 16558).`
+          },
+          {
+            id: 'MSDS_4',
+            title: 'MSDS - 4. نشرة الأمان وإخطار التسجيل لمبيد فول ستوب Full Stop 10% SC',
+            type: 'msds',
+            rawText: `MSDS - فول ستوب Full Stop 10% SC Bait - مركز معلق لمكافحة الصراصير والحشرات الزاحفة
+1. بيانات التسجيل بهيئة الدواء المصرية (Registration License No. 1902/2023)
+البند | البيان الرسمي المعتمد في إخطار التسجيل
+الاسم التجاري (Trade Name) | فول ستوب 10% مركز معلق (طعم) - Full Stop 10% SC Bait
+المادة الفعالة والتركيز | Fipronil (96% min TC) 10% w/v (اللتر يحتوي على 100 جم فيبرونيل) + مذيبات ومستحلبات 90%
+رقم التسجيل وتاريخ السريان | رقم التسجيل: 1902 / 2023 | تاريخ الجلسة: 01/08/2023 | ساري حتى: 31/07/2028
+الشركة المرخصة والمصنعة | الترخيص: سترا أجروكيميكالز (Setra Agrochemicals) | التصنيع: العربية للصناعات الكيماوية (Arabia Chemicals)
+الآفة المستهدفة ومعدل التخفيف | الصراصير والحشرات الزاحفة والنمل | التخفيف: 40 سم3 / 10 لتر ماء (4 سم3 / 1 لتر ماء)
+2. التركيب الكيميائي وتصنيف المخاطر والخواص (MSDS Sections 2, 3, 5, 9 & 11)
+البند / الفحص | القيمة والتصنيف المعتمد
+مكونات نشرة الأمان (Solution 2) | Fipronil (CAS 120068-37-3): 10% | S-methoprene: 9% | Ethanol: 8% | حوامل ومذيبات: 73%
+تصنيف الأخطار (GHS Classification) | ضار إذا ابتلع (H302 - Cat 4) | قد يضر بملامسة الجلد (H313) | حساسية جلدية (H317) | سام جداً للأحياء المائية (H400 - Cat 1)
+الخواص الفيزيائية ونقطة الوميض | الرقم الهيدروجيني (pH): 5.2 | الكثافة النوعية: 1.02 جم/سم3 | نقطة الوميض: 39°C للمحلول 2 و 91°C للمحلول 1
+السمية الحادة (Acute Toxicity) | Oral LD50 (Rat): 750 - 1541 mg/kg | Dermal LD50: 5000 mg/kg
+3. الإسعافات الأولية والوقاية الشخصية (MSDS Sections 4 & 8)
+• الإسعافات الأولية: غسل العين فوراً بكميات وفيرة من الماء لمدة 15 دقيقة على الأقل؛ غسل الجلد فوراً بالماء والصابون وخلع الملابس الملوثة؛ ونقل المصاب للهواء النقي.
+• الوقاية الشخصية (PPE): نظارات واقية من الرذاذ الكيميائي (ANSI A87.1)، قفازات مطاط بيوتيل أو نيوبرين أو فينيل، وتوافر غسيل أعين للطوارئ.`
+          },
+          {
+            id: 'MSDS_5',
+            title: 'MSDS - 5. نشرة الأمان وإخطار التسجيل لمبيد روديكس جل Rodex 0.05% Pasty Bait',
+            type: 'msds',
+            rawText: `MSDS - روديكس جل Rodex 0.05% Pasty Bait - طعم على هيئة عجينة لمكافحة الصراصير والحشرات الزاحفة
+1. بيانات إخطار التسجيل والمواصفات (Registration License No. 1927/2018)
+البند | البيان الرسمي المعتمد
+الاسم التجاري والمادة الفعالة | روديكس 0.05% طعم على هيئة عجينة (Rodex 0.05% pasty bait) | المادة الفعالة: Fipronil (min 96% TC) 0.05% w/w
+رقم التسجيل والشركة المرخصة | رقم التسجيل: 1927 / 2018 | الشركة المرخصة والمصنعة بمصر: ستاركيم لتصنيع الكيماويات (Starchem)
+العبوات المعتمدة وطريقة التطبيق | سرنجات بلاستيكية HDPE سعة 20 جم، 30 جم، 35 جم | وضع نقاط جل موضعية (Spotting) لمكافحة الصراصير والحشرات الزاحفة بدون تخفيف
+الصلاحية وظروف التخزين | عامان (2 Years) في العبوة الأصلية في درجة حرارة لا تتجاوز 30°C بعيداً عن الرطوبة وضوء الشمس المباشر
+2. الخواص الفيزيائية والسمية والتنظيمية (MSDS Sections 9, 10, 11, 14 & 15)
+الخاصية / الفحص | القيمة القياسية المعتمدة في نشرة الأمان
+الشكل واللون والرائحة والـ pH | جل معجون (Gel) بني اللون (Brown) عديم الرائحة (Odourless) | الرقم الهيدروجيني (pH): 5.8 - 5.9 (عند 21°C)
+نقطة الوميض والغليان والاشتعال | نقطة الوميض: 80°C | الغليان: 120°C | درجة الاشتعال: 415°C | غير قابل للانفجار ولا يسبب تآكل المعادن
+السمية الحادة للمستحضر (Section 11) | الفموية (Rat & Mice LD50): > 2000 mg/kg | الجلدية (Rabbit LD50): > 2000 mg/kg | غير مهيج للجلد أو الأغشية المخاطية
+النقل والعبارات التنظيمية | غير مصنف كمادة خطرة في النقل البري أو البحري أو الجوي | العبارات: R52/53, S2, S13, S20/21, S35, S49, S57
+3. الإسعافات الأولية والوقاية الشخصية (MSDS Sections 4 & 8)
+• الإسعافات الأولية: شطف العين بالماء الجاري لمدة 15 دقيقة؛ غسل الجلد بالماء والصابون؛ وفي حالة الابتلاع يتم مضمضة الفم فوراً وشرب ماء وفير وعدم دفع المصاب للتقيؤ (لا يوجد ترياق محدد).
+• الوقاية الشخصية (PPE): ارتداء قفازات مقاومة للكيماويات (EN 374 مثل النيتريل 0.4 مم أو الكلوروبرين 0.5 مم) ونظارة سلامة (EN 166).`
+          },
+          {
+            id: 'MSDS_6',
+            title: 'MSDS - 6. نشرة الأمان الكاملة للمادة الفعالة فيبرونيل Fipronil 96% TC',
+            type: 'msds',
+            rawText: `MSDS - المادة الفعالة فيبرونيل Fipronil 96% Technical (Material Safety Data Sheet)
+1. تعريف المادة الفعالة والتركيب الكيميائي (MSDS Sections 1 & 2)
+البند | البيان الفني المعتمد
+الاسم الكيميائي (Chemical Name) | 5-amino-1-[2,6-dichloro-4-(trifluoromethyl)phenyl]-4-(trifluoromethylsulfinyl)pyrazole-3-carbonitrile
+رقم CAS والصيغة والوزن الجزيئي | CAS No.: 120068-37-3 | الصيغة: C12H4Cl2F6N4OS | الوزن الجزيئي: 437.2
+نسبة النقاوة والمظهر | Fipronil: 96.0% + مكونات أخرى: 4.0% | مسحوق أبيض إلى أوف وايت، غير قابل للاشتعال
+الشركة المصنعة للمادة الخام | Zhejiang Rayfull Chemicals Co., Ltd - China
+2. الخواص الفيزيائية والسمية والبيئية (MSDS Sections 9, 11 & 12)
+الخاصية / الاختبار | القيمة القياسية المعتمدة
+نقطة الانصهار والذوبانية | الانصهار: 200°C - 201°C | الذوبانية في الماء: 1.9 ملجم/لتر (عند pH 5) وفي الأسيتون: 545.9 جم/لتر
+السمية الحادة (Acute Toxicity - Rat) | الفموية (Oral LD50): 97 ملجم/كجم | الجلدية (Dermal LD50): > 2000 ملجم/كجم | الاستنشاق (LC50): 0.682 ملجم/لتر
+السمية البيئية (Ecotoxicity) | الأسماك (Japanese carp LC50): 0.34 ملجم/لتر | دافنيا (LC50): 19 ميكروجرام/لتر | الطيور (LD50): > 2150 ملجم/كجم
+3. الإسعافات الأولية والتخلص من العبوات (MSDS Sections 4 & 13)
+• الإسعافات الأولية: شطف العين بالماء النظيف لمدة 15 دقيقة؛ غسل الجلد بالماء والصابون؛ وفي حالة الابتلاع الاتصال فوراً بالطبيب أو مركز السموم.
+• التخلص من العبوات: الغسيل الثلاثي للعبوات وإضافة ماء الشطف لتانك الرش، وثقب وتكسير العبوات الفارغة ودفنها في مدفن صحي معتمد وعدم حرقها.`
+          }
+        ]
+      }
+    ];
+
+    let activeTabId = 'TAB_RECEIVING';
+    let activeDocId = '';
+
+    window.onload = function() {
+      const total = SYSTEM_TABS.reduce((acc, t) => acc + t.documents.length, 0);
+      document.getElementById('totalDocsBadge').textContent = total;
+      renderSidebar();
+      renderButtonsGrid();
+    };
+
+    function renderSidebar() {
+      const container = document.getElementById('sidebarTabs');
+      document.getElementById('btn-ALL').classList.toggle('active', activeTabId === 'ALL');
+
+      container.innerHTML = SYSTEM_TABS.map(tab => {
+        const isActive = activeTabId === tab.id ? 'active' : 'text-elabd-brown hover:bg-elabd-roseLight/60';
+        return `
+          <button onclick="selectTab('${tab.id}')" class="tab-btn ${isActive} w-full text-right text-xs font-bold px-3.5 py-3 rounded-xl transition flex items-center justify-between">
+            <span class="truncate">📁 ${tab.name}</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-elabd-brown text-elabd-cream font-extrabold">${tab.documents.length}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectTab(tabId) {
+      activeTabId = tabId;
+      activeDocId = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('formattedViewer').classList.add('hidden');
+      renderSidebar();
+      renderButtonsGrid();
+    }
+
+    function renderButtonsGrid() {
+      const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      const grid = document.getElementById('docButtonsGrid');
+      const titleEl = document.getElementById('currentTabTitle');
+
+      let docsToShow = [];
+      if (activeTabId === 'ALL' || query !== '') {
+        titleEl.innerHTML = `<span class="bg-elabd-brown text-elabd-cream px-3 py-1 rounded-lg text-xs">كل الأقسام</span> <span>جميع الوثائق والـ MSDS المتاحة</span>`;
+        SYSTEM_TABS.forEach(tab => {
+          tab.documents.forEach(doc => {
+            const haystack = (doc.title + ' ' + (doc.rawText || '') + ' ' + tab.name).toLowerCase();
+            if (query === '' || haystack.includes(query)) {
+              docsToShow.push({ ...doc, tabName: tab.name });
+            }
+          });
+        });
+      } else {
+        const currentTab = SYSTEM_TABS.find(t => t.id === activeTabId);
+        if (currentTab) {
+          titleEl.innerHTML = `<span class="bg-elabd-rose text-elabd-dark px-3 py-1 rounded-lg text-xs font-black">قسم</span> <span>${currentTab.name}</span>`;
+          docsToShow = currentTab.documents.map(d => ({ ...d, tabName: currentTab.name }));
+        }
+      }
+
+      grid.innerHTML = docsToShow.map(doc => {
+        const style = getDocStyle(doc.type);
+        const isSelected = activeDocId === doc.id ? 'ring-4 ring-elabd-brown bg-elabd-roseLight/50' : 'bg-white';
+        return `
+          <button onclick="openDocument('${doc.id}')" class="doc-btn ${isSelected} text-right p-5 rounded-2xl border-2 border-elabd-rose/40 shadow-sm flex flex-col justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl ${style.iconBg} flex items-center justify-center text-2xl shrink-0 border border-elabd-rose/30">
+                ${style.icon}
+              </div>
+              <div>
+                <span class="inline-block text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${style.badge} mb-1">${style.label}</span>
+                <h3 class="font-black text-elabd-brown text-sm md:text-base leading-snug">${doc.title}</h3>
+              </div>
+            </div>
+            <div class="w-full pt-3 border-t border-elabd-rose/20 flex items-center justify-between text-xs">
+              <span class="text-elabd-brown/70 font-bold">📁 ${doc.tabName}</span>
+              <span class="bg-elabd-brown text-elabd-cream font-extrabold px-3.5 py-1.5 rounded-xl">فتح وعرض ⬅</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function getDocStyle(type) {
+      if (type === 'msds') return { label: 'نشرة أمان وتسجيل (MSDS)', icon: '🧪', iconBg: 'bg-elabd-rose text-elabd-dark', badge: 'bg-elabd-brown text-elabd-cream' };
+      if (type === 'instruction') return { label: 'تعليمة عمل (WI)', icon: '📜', iconBg: 'bg-elabd-roseLight text-elabd-brown', badge: 'bg-elabd-rose/40 text-elabd-dark' };
+      if (type === 'form') return { label: 'نموذج رسمي للطباعة (Form)', icon: '📋', iconBg: 'bg-elabd-cream/60 text-elabd-brown', badge: 'bg-elabd-cream text-elabd-dark' };
+      return { label: 'إجراء قياسي (SOP)', icon: '📘', iconBg: 'bg-elabd-rose/30 text-elabd-brown', badge: 'bg-elabd-brown text-elabd-cream' };
+    }
+
+    function openDocument(docId) {
+      activeDocId = docId;
+      renderButtonsGrid();
+
+      let targetDoc = null;
+      let targetTabName = '';
+      SYSTEM_TABS.forEach(tab => {
+        const found = tab.documents.find(d => d.id === docId);
+        if (found) { targetDoc = found; targetTabName = tab.name; }
+      });
+      if (!targetDoc) return;
+
+      const style = getDocStyle(targetDoc.type);
+      const bodyHtml = targetDoc.customHtml ? targetDoc.customHtml : renderDynamicWordSheet(targetDoc.title, targetDoc.rawText);
+
+      const viewer = document.getElementById('formattedViewer');
+      viewer.classList.remove('hidden');
+      viewer.innerHTML = `
+        <article class="bg-white rounded-3xl shadow-xl border-2 border-elabd-rose/50 overflow-hidden">
+          <div class="no-print bg-elabd-brown text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b-4 border-elabd-rose">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-elabd-rose text-elabd-dark flex items-center justify-center text-2xl">${style.icon}</div>
+              <div>
+                <span class="bg-elabd-cream text-elabd-dark text-xs font-black px-3 py-0.5 rounded-full">${style.label}</span>
+                <h2 class="text-base md:text-lg font-black text-white mt-0.5">${targetDoc.title}</h2>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="window.print()" class="bg-elabd-cream hover:bg-white text-elabd-dark text-xs font-black px-4 py-2.5 rounded-xl shadow">🖨️ طباعة (A4)</button>
+              <button onclick="document.getElementById('formattedViewer').classList.add('hidden')" class="bg-elabd-rose/20 hover:bg-red-600 text-white text-xs font-black px-4 py-2.5 rounded-xl">إغلاق ✕</button>
+            </div>
+          </div>
+          <div class="p-6 md:p-8 bg-elabd-bg print:p-0 print:bg-white">${bodyHtml}</div>
+        </article>
+      `;
+      viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderDynamicWordSheet(title, rawText) {
+      const lines = (rawText || '').split('\n').map(l => l.trim()).filter(Boolean);
+      let bodyHtml = '';
+      let tableRows = [];
+
+      function flushTable() {
+        if (tableRows.length === 0) return;
+        const headers = tableRows[0];
+        const rows = tableRows.slice(1);
+        bodyHtml += `
+          <table class="word-table">
+            <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${rows.map(r => `<tr>${r.map((c, i) => `<td class="${i === 0 ? 'font-bold bg-gray-50/60' : ''}">${c}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+        tableRows = [];
+      }
+
+      lines.forEach((line, idx) => {
+        if (idx === 0) return;
+        if (line.includes('|')) {
+          tableRows.push(line.split('|').map(c => c.trim()));
+          return;
+        }
+        flushTable();
+        if (/^[1-9]\d?\s*[\.\-]/.test(line)) {
+          bodyHtml += `<h2 class="doc-sec-title">${line}</h2>`;
+        } else if (line.startsWith('•') || line.startsWith('-')) {
+          bodyHtml += `<ul class="list-disc pr-6 mb-2"><li>${line.replace(/^[•\-]\s*/, '')}</li></ul>`;
+        } else {
+          bodyHtml += `<p class="mb-2">${line}</p>`;
+        }
+      });
+      flushTable();
+
+      return `<div class="word-doc-sheet"><h1 class="doc-main-title">${title}</h1>${bodyHtml}</div>`;
+    }
+
+    function getVehicleFormHTML() {
+      return `
+        <div class="word-doc-sheet">
+          <div class="space-y-2 text-[15px] font-bold text-black mb-4">
+            <div class="grid grid-cols-2 gap-4"><div>التاريخ &nbsp;:</div><div>الوقت :</div></div>
+            <div class="grid grid-cols-2 gap-4"><div>رقم العربة:</div><div>نوع العربة: (جاف بارد – مبرد – مجمد)</div></div>
+            <div class="grid grid-cols-2 gap-4"><div>اسم الفرع:-</div><div>مدة عملية الاستلام:</div></div>
+          </div>
+          <table class="word-table">
+            <thead>
+              <tr><th style="width:46%;">المعيار</th><th style="width:12%;">نعم</th><th style="width:12%;">لا</th><th style="width:30%;">الملاحظات</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="font-bold">هل العربة نظيفة؟</td><td></td><td></td><td></td></tr>
+              <tr><td class="font-bold">هل العربة خالية من الروائح الكريهة؟</td><td></td><td></td><td></td></tr>
+              <tr><td class="font-bold">هل ظروف النقل متوافقة مع طبيعة المنتج؟</td><td></td><td></td><td></td></tr>
+              <tr><td class="font-bold">هل السيارة سليمة؟</td><td></td><td></td><td></td></tr>
+              <tr><td class="font-bold">هل يوجد فصل جيد بين المنتجات؟</td><td></td><td></td><td></td></tr>
+              <tr><td class="font-bold">هل المنتجات الغير مغلفة مغطاة بشكل جيد؟</td><td></td><td></td><td></td></tr>
+              <tr><td class="font-bold">درجة الحرارة المنتجات المستلمة</td><td colspan="3"></td></tr>
+              <tr><td class="font-bold">المنتجات المستلمة</td><td colspan="3"></td></tr>
+              <tr><td class="font-bold">هل يوجد رفض لأى منتجات معيبة؟</td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+          <div class="space-y-1.5 text-[15px] font-bold text-black mt-4">
+            <div>نوع المنتج المعيب :</div><div>الكمية :</div><div>سبب الرفض:</div>
+            <div class="pt-2">ملاحظة:-</div>
+            <div class="font-extrabold">(تبريد 1-5 مْ) (تجميد -18 مْ) (جاف بارد 18-25 مْ)</div>
+          </div>
+          <div class="grid grid-cols-2 gap-8 mt-6 pt-2 text-[15px] font-bold text-black">
+            <div class="space-y-1.5"><div class="font-extrabold">القائم بالفحص:</div><div>الاسم:</div><div>الوظيفة:</div><div>التوقيع:</div></div>
+            <div class="space-y-1.5"><div class="font-extrabold">الاعتماد</div><div>الاسم:</div><div>الوظيفة:</div><div>التوقيع:</div></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getReceivingProcedureHTML() {
+      return renderDynamicWordSheet('إجراء استلام المنتجات', `إجراء استلام المنتجات
+1. الغرض ومجال التطبيق (Purpose & Scope)
+يهدف هذا الإجراء إلى تنظيم وتوحيد آليات استلام كافة المنتجات ومواد التعبئة والتغليف الواردة إلى الموقع، بما يضمن سلامة المنتجات ومطابقتها لمعايير واشتراطات الهيئة القومية لسلامة الغذاء (NFSA). يسري هذا الإجراء على جميع عمليات الاستلام أمام منفذ البيع.
+2. المسؤوليات والأدوار (Roles & Responsibilities)
+• المنسق: مسؤول عن مراجعة مطابقة الشحنة مع إذن التحويل، والتحقق من درجات الحرارة ومعايير القبول والرفض.
+• فرد الأمن: مسؤول عن فك قفيز قفل الشاحنة، التحقق من سلامة الأختام وتسجيلها رسمياً قبل فتح الحاوية.
+• السائق: مسؤول عن إيقاف الشاحنة في الموقع المحدد، تشغيل وحدة التبريد عند اللزوم، وتنزيل وحدة الرفع الهيدروليكية.
+• عمال التحميل: مسؤولون عن تنزيل، نقل، ورص المواد وفق معايير السلامة المهنية، وإعادة تحميل الأسبتة الفارغة والمرتجعات.
+3. حدود القبول والرفض (Acceptance & Rejection Limits)
+الخامة / المنتج | فحص الاستلام المطلوب | حد الاستلام (قبول) | حد الرفض (رفض فوري)
+المنتجات المبردة (غربي – مخبوزات) | بصري وفحص للحشرات والروائح - درجة الحرارة - مسببات الحساسية | منتجات سليمة خالية من الحشرات والروائح – درجة حرارة من 1-5 – فصل مسببات الحساسية | ظهور علامات فساد أو حشرات أو روائح – حرارة أعلى من 5 – عدم فصل الحساسية
+المنتجات المجمدة (ايسكريم) | تاريخ الصلاحية - بصري - درجة الحرارة | تاريخ صلاحية واضح ولا يتعدى 75% من صلاحيتها - درجة حرارة -18 أو أبرد | تعدي 75% من الصلاحية - حرارة أدفأ من -18
+المنتجات المخزنية وخامات الباريستا | الصلاحية – العبوات والبيانات - الحرارة – جودة الألبان | لم تتعد 75% من الصلاحية - وضوح بيانات الحساسية - عبوات سليمة - حرارة 18 إلى 24 - عدم وجود تخثر باللبن | تعدي 75% من الصلاحية - انبعاج العبوات - حرارة أعلى من 24 - تخثر اللبن
+المكسرات | الصلاحية – العبوات والحشرات والروائح - الحرارة | حبات سليمة جافة خالية من التسوس أو التزنخ - لم تتعد 75% من الصلاحية - فصل الفول السوداني - حرارة 18 إلى 24 | حشرات أو خيوط عنكبوتية أو رائحة زنخ - تعدي 75% من الصلاحية
+الشرقي | الصلاحية – التغليف - الحرارة - الحساسية | منتجات سليمة - لم تتعد نصف المدة من صلاحيتها - صاجات مغلفة تماماً - حرارة 18 إلى 24 | تعدي نصف الصلاحية - عدم تغليف الصاجات - حرارة أعلى من 24`);
+    }
+
+    function getReceivingInstructionHTML() {
+      return renderDynamicWordSheet('تعليمات الاستلام', `تعليمات الاستلام
+1. بيانات العملية
+البند | البيان
+اسم العملية | الإستلام (أمام منفذ البيع) - رقم العملية: P 2 4
+القائم بالعمل | المنسق (1) - فرد أمن (1) - السائق (1) - عمال التحميل (3)
+2. خطوات العمل
+• 8-1 يقوم السائق بإيقاف السيارة في المكان المخصص لها أمام منفذ البيع وتركيب جهاز التحكم وإنزال وحدة الرفع.
+• 8-2 يقوم مسئول الأمن بفك أفيز قفل السيارة والاحتفاظ به وتسجيله بسجل الأحوال اليومية.
+• 8-3 يقوم منسق منفذ البيع بالتأكيد على مطابقة المنتجات لإذن تحويل المنتج التام (DT-IS-FM-01-01).
+• 8-8 في حالة إرسال مرتجع للمصنع يتم ارتجاعه في سيارات مناسبة لطبيعة المنتج من حيث درجة الحرارة بحد أقصى الساعة 2:00 ظهراً.
+• 8-9 عند وصول سيارة غربي أو آيس كريم وتواجد سيارة أخرى، تظل سيارة الغربي والآيس كريم مغلقة مع استمرار تشغيل محرك ووحدة التبريد.`);
+    }
+  </script>
+</body>
+</html>

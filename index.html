@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>بلاتفورم نظام سلامة الغذاء - العبد للأغذية</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- مكتبة قراءة ملفات Word (.docx) وتحويلها لصفحة منسقة داخل الموقع -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <!-- مكتبة قراءة ملفات Excel (.xlsx / .csv) وتحويلها لجداول داخل الموقع -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
   <script>
@@ -38,6 +36,11 @@
       font-weight: 900; 
       border-right: 5px solid #5A2D22;
     }
+    .sub-tab-btn.active {
+      background-color: #5A2D22;
+      color: #F6D5B0;
+      font-weight: 800;
+    }
     .doc-btn { transition: all 0.2s ease; }
     .doc-btn:hover { 
       transform: translateY(-4px); 
@@ -48,7 +51,6 @@
     ::-webkit-scrollbar-track { background: #FCECE9; }
     ::-webkit-scrollbar-thumb { background: #5A2D22; border-radius: 4px; }
 
-    /* تنسيق عرض ملفات الـ Word والـ Excel المرفوعة */
     .word-viewer-sheet {
       background: #ffffff;
       color: #000000;
@@ -107,7 +109,7 @@
           <h1 class="font-black text-base md:text-lg text-elabd-cream">بلاتفورم نظام سلامة الغذاء - العبد للأغذية</h1>
           <span class="bg-elabd-rose text-elabd-dark text-[11px] font-black px-2.5 py-0.5 rounded-full">NFSA System</span>
         </div>
-        <p id="repoStatusText" class="text-[11px] text-elabd-roseLight/80">يقرأ الفولدرات والملفات المرفوعة تلقائياً</p>
+        <p id="repoStatusText" class="text-[11px] text-elabd-roseLight/80">منصة وثائق وسجلات سلامة الغذاء</p>
       </div>
     </div>
 
@@ -128,11 +130,11 @@
   <!-- الجسم الرئيسي -->
   <div class="flex-1 flex overflow-hidden">
     
-    <!-- القائمة الجانبية (تقرأ أسماء الفولدرات تلقائياً) -->
-    <aside class="no-print w-64 md:w-72 bg-white border-l border-elabd-rose/30 flex flex-col shrink-0 shadow-sm">
+    <!-- القائمة الجانبية المنسدلة (Accordion Tree) -->
+    <aside class="no-print w-68 md:w-76 bg-white border-l border-elabd-rose/30 flex flex-col shrink-0 shadow-sm">
       <div class="p-3.5 border-b border-elabd-rose/20 bg-elabd-roseLight/40">
         <div class="text-xs font-extrabold text-elabd-brown/80 mb-2">أقسام وفولدرات النظام:</div>
-        <button onclick="selectFolder('ALL')" id="btn-ALL" class="tab-btn active w-full text-right text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center justify-between text-elabd-brown hover:bg-elabd-roseLight">
+        <button onclick="selectSection('ALL', null)" id="btn-ALL" class="tab-btn active w-full text-right text-xs font-bold px-3.5 py-2.5 rounded-xl transition flex items-center justify-between text-elabd-brown hover:bg-elabd-roseLight">
           <span>🌐 كل الملفات المرفوعة</span>
           <span id="totalFilesBadge" class="bg-elabd-brown text-elabd-cream text-[10px] px-2 py-0.5 rounded-full font-extrabold">0</span>
         </button>
@@ -143,27 +145,9 @@
     <!-- منطقة العمل -->
     <main class="flex-1 overflow-y-auto p-5 md:p-6 space-y-6" id="mainContainer">
       
-      <!-- شاشة التحميل -->
       <div id="loadingBox" class="no-print bg-white rounded-2xl p-12 text-center border border-elabd-rose/40 shadow-sm">
         <div class="w-10 h-10 border-4 border-elabd-rose border-t-elabd-brown rounded-full animate-spin mx-auto mb-3"></div>
-        <p class="font-extrabold text-sm text-elabd-brown">جاري قراءة الفولدرات والملفات المرفوعة...</p>
-      </div>
-
-      <!-- نافذة ضبط اسم حساب GitHub (تظهر فقط إذا شغلت الملف من جهازك قبل رفعه على GitHub Pages) -->
-      <div id="manualConfigBox" class="no-print hidden bg-white rounded-2xl p-6 border-2 border-elabd-rose shadow-sm max-w-xl mx-auto">
-        <h3 class="font-black text-base text-elabd-brown mb-2">⚙️ ربط المستودع (Repository):</h3>
-        <p class="text-xs text-elabd-brown/70 mb-4">عند رفع هذا الملف على GitHub Pages سيتعرف على حسابك تلقائياً. أما للتجربة الآن، أدخل اسم حسابك واسم المستودع على GitHub:</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-xs">
-          <div>
-            <label class="font-bold block mb-1">اسم المستخدم (GitHub Username):</label>
-            <input type="text" id="cfgOwner" placeholder="مثال: ahmed-qa" class="w-full border border-elabd-rose rounded-xl p-2.5" />
-          </div>
-          <div>
-            <label class="font-bold block mb-1">اسم المستودع (Repository Name):</label>
-            <input type="text" id="cfgRepo" placeholder="مثال: elabd-nfsa" class="w-full border border-elabd-rose rounded-xl p-2.5" />
-          </div>
-        </div>
-        <button onclick="saveManualRepoConfig()" class="bg-elabd-brown text-elabd-cream text-xs font-black px-5 py-2.5 rounded-xl">حفظ وقراءة الملفات</button>
+        <p class="font-extrabold text-sm text-elabd-brown">جاري قراءة وتنظيم الأقسام والملفات...</p>
       </div>
 
       <!-- 1. شبكة أزرار الملفات -->
@@ -175,127 +159,106 @@
         <div id="filesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
 
-      <!-- 2. شاشة عرض محتوى الملف المرفوع (PDF / Word / Excel / صورة / نص) -->
+      <!-- 2. شاشة عرض محتوى الملف المرفوع -->
       <div id="fileViewerSection" class="hidden"></div>
 
     </main>
   </div>
 
   <script>
-    // =========================================================================
-    // إعدادات المستودع (يتعرف عليها الكود تلقائياً من رابط GitHub Pages)
-    // =========================================================================
-    let GITHUB_OWNER = '';
-    let GITHUB_REPO = '';
+    let GITHUB_OWNER = 'isabry646-lab';
+    let GITHUB_REPO = 'NFSA';
     let GITHUB_BRANCH = 'main';
 
-    let foldersMap = {}; // { folderName: [fileObj, ...] }
+    // هيكل الشجرة الهرمي: { mainFolder: { totalCount, rootFiles: [], subFolders: { subName: [files] } } }
+    let treeStructure = {};
     let allFilesList = [];
-    let activeFolder = 'ALL';
+    let expandedFolders = {}; // تتبع الفولدرات المفتوحة/المنسدلة
+    let activeMainFolder = 'ALL';
+    let activeSubFolder = null;
     let activeFilePath = '';
 
     window.onload = function() {
-      detectGitHubRepoAutomatically();
-    };
-
-    function detectGitHubRepoAutomatically() {
       const host = window.location.hostname;
       const pathParts = window.location.pathname.split('/').filter(Boolean);
-
-      // إذا كان الموقع يعمل على username.github.io/repo-name
       if (host.endsWith('.github.io')) {
         GITHUB_OWNER = host.replace('.github.io', '');
         GITHUB_REPO = pathParts.length > 0 ? pathParts[0] : (GITHUB_OWNER + '.github.io');
-        scanRepositoryFiles();
-        return;
       }
-
-      // إذا كان محفوظاً مسبقاً في المتصفح
-      const savedOwner = localStorage.getItem('GH_OWNER');
-      const savedRepo = localStorage.getItem('GH_REPO');
-      if (savedOwner && savedRepo) {
-        GITHUB_OWNER = savedOwner;
-        GITHUB_REPO = savedRepo;
-        scanRepositoryFiles();
-      } else {
-        document.getElementById('loadingBox').classList.add('hidden');
-        document.getElementById('manualConfigBox').classList.remove('hidden');
-      }
-    }
-
-    function saveManualRepoConfig() {
-      const owner = document.getElementById('cfgOwner').value.trim();
-      const repo = document.getElementById('cfgRepo').value.trim();
-      if (!owner || !repo) return alert('يرجى كتابة اسم المستخدم واسم المستودع');
-      GITHUB_OWNER = owner;
-      GITHUB_REPO = repo;
-      localStorage.setItem('GH_OWNER', owner);
-      localStorage.setItem('GH_REPO', repo);
-      document.getElementById('manualConfigBox').classList.add('hidden');
       scanRepositoryFiles();
-    }
+    };
 
-    // قراءة كل الفولدرات والملفات المرفوعة في المستودع تلقائياً
     async function scanRepositoryFiles() {
       document.getElementById('loadingBox').classList.remove('hidden');
       document.getElementById('filesSection').classList.add('hidden');
       document.getElementById('fileViewerSection').classList.add('hidden');
 
       try {
-        // جلب بيانات المستودع لمعرفة الفرع الافتراضي (main أو master)
         const repoInfoRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`);
-        if (!repoInfoRes.ok) throw new Error('لم يتم العثور على المستودع أو أنه Private (تأكد أنه Public)');
+        if (!repoInfoRes.ok) throw new Error('تأكد من اتصال الإنترنت وأن المستودع Public');
         const repoInfo = await repoInfoRes.json();
         GITHUB_BRANCH = repoInfo.default_branch || 'main';
 
-        // جلب شجرة الملفات بالكامل
         const treeRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/trees/${GITHUB_BRANCH}?recursive=1`);
-        if (!treeRes.ok) throw new Error('تعذر قراءة شجرة الملفات من المستودع');
+        if (!treeRes.ok) throw new Error('تعذر قراءة قائمة الملفات');
         const treeData = await treeRes.json();
 
-        foldersMap = {};
+        treeStructure = {};
         allFilesList = [];
 
         (treeData.tree || []).forEach(item => {
-          if (item.type !== 'blob') return; // نأخذ الملفات فقط
+          if (item.type !== 'blob') return;
           const filePath = item.path;
           const fileName = filePath.split('/').pop();
+          const ext = fileName.includes('.') ? fileName.split('.').pop().toLowerCase() : '';
 
-          // تجاهل ملفات النظام والكود نفسه
-          if (filePath === 'index.html' || fileName.toLowerCase() === 'readme.md' || fileName.startsWith('.')) {
+          // تجاهل ملفات النظام والملفات المؤقتة .tmp
+          if (
+            filePath.toLowerCase() === 'index.html' ||
+            fileName.toLowerCase() === 'readme.md' ||
+            fileName.startsWith('.') ||
+            ext === 'tmp'
+          ) {
             return;
           }
 
           const parts = filePath.split('/');
-          const folderName = parts.length > 1 ? parts.slice(0, -1).join(' / ') : 'ملفات عامة';
-          const ext = fileName.includes('.') ? fileName.split('.').pop().toLowerCase() : '';
-          const cleanTitle = fileName.replace(/\.[^/.]+$/, ''); // اسم الملف بدون الامتداد
-
-          // رابط التحميل المباشر للملف من GitHub Pages
+          const mainFolder = parts.length > 1 ? parts[0] : 'ملفات عامة';
+          const subFolder = parts.length > 2 ? parts.slice(1, -1).join(' / ') : null;
+          const cleanTitle = fileName.replace(/\.[^/.]+$/, '');
           const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${encodeURI(filePath)}`;
 
           const fileObj = {
             path: filePath,
             name: fileName,
             title: cleanTitle,
-            folder: folderName,
+            mainFolder: mainFolder,
+            subFolder: subFolder,
+            displayPath: subFolder ? `${mainFolder} / ${subFolder}` : mainFolder,
             ext: ext,
             url: rawUrl
           };
 
-          if (!foldersMap[folderName]) foldersMap[folderName] = [];
-          foldersMap[folderName].push(fileObj);
+          if (!treeStructure[mainFolder]) {
+            treeStructure[mainFolder] = { totalCount: 0, rootFiles: [], subFolders: {} };
+          }
+          treeStructure[mainFolder].totalCount++;
+
+          if (subFolder) {
+            if (!treeStructure[mainFolder].subFolders[subFolder]) {
+              treeStructure[mainFolder].subFolders[subFolder] = [];
+            }
+            treeStructure[mainFolder].subFolders[subFolder].push(fileObj);
+          } else {
+            treeStructure[mainFolder].rootFiles.push(fileObj);
+          }
+
           allFilesList.push(fileObj);
         });
 
         document.getElementById('loadingBox').classList.add('hidden');
         document.getElementById('totalFilesBadge').textContent = allFilesList.length;
-        document.getElementById('repoStatusText').textContent = `متصل بـ ${GITHUB_OWNER}/${GITHUB_REPO} • إجمالي الملفات المرفوعة: ${allFilesList.length}`;
-
-        const folderNames = Object.keys(foldersMap);
-        if (activeFolder !== 'ALL' && !foldersMap[activeFolder]) {
-          activeFolder = folderNames.length > 0 ? folderNames[0] : 'ALL';
-        }
+        document.getElementById('repoStatusText').textContent = `متصل بـ ${GITHUB_OWNER}/${GITHUB_REPO} • إجمالي الملفات: ${allFilesList.length}`;
 
         renderSidebar();
         renderFilesGrid();
@@ -303,30 +266,83 @@
       } catch (err) {
         document.getElementById('loadingBox').innerHTML = `
           <p class="text-red-700 font-bold text-sm mb-3">⚠️ ${err.message}</p>
-          <button onclick="localStorage.removeItem('GH_OWNER'); location.reload();" class="bg-elabd-brown text-white text-xs font-bold px-4 py-2 rounded-xl">تعديل بيانات المستودع</button>
+          <button onclick="scanRepositoryFiles()" class="bg-elabd-brown text-white text-xs font-bold px-4 py-2 rounded-xl">إعادة المحاولة</button>
         `;
       }
     }
 
+    // رسم القائمة الجانبية بنظام القائمة المنسدلة (Accordion)
     function renderSidebar() {
       const container = document.getElementById('sidebarFolders');
-      document.getElementById('btn-ALL').classList.toggle('active', activeFolder === 'ALL');
+      document.getElementById('btn-ALL').classList.toggle('active', activeMainFolder === 'ALL');
 
-      const folderNames = Object.keys(foldersMap).sort((a, b) => a.localeCompare(b, 'ar', { numeric: true }));
-      container.innerHTML = folderNames.map(fName => {
-        const count = foldersMap[fName].length;
-        const isActive = activeFolder === fName ? 'active' : 'text-elabd-brown hover:bg-elabd-roseLight/60';
+      const mainNames = Object.keys(treeStructure).sort((a, b) => a.localeCompare(b, 'ar', { numeric: true }));
+
+      container.innerHTML = mainNames.map(mainName => {
+        const node = treeStructure[mainName];
+        const subNames = Object.keys(node.subFolders).sort((a, b) => a.localeCompare(b, 'ar', { numeric: true }));
+        const hasSubs = subNames.length > 0;
+        const isExpanded = !!expandedFolders[mainName];
+        const isMainActive = activeMainFolder === mainName && activeSubFolder === null;
+
+        let subMenuHtml = '';
+        if (hasSubs && isExpanded) {
+          subMenuHtml = `
+            <div class="mr-3 mt-1 pr-2.5 border-r-2 border-elabd-rose space-y-1">
+              ${subNames.map(subName => {
+                const subCount = node.subFolders[subName].length;
+                const isSubActive = activeMainFolder === mainName && activeSubFolder === subName;
+                return `
+                  <button 
+                    onclick="selectSection('${escapeStr(mainName)}', '${escapeStr(subName)}')" 
+                    class="sub-tab-btn ${isSubActive ? 'active' : 'text-elabd-brown/85 hover:bg-elabd-roseLight/70'} w-full text-right text-[11.5px] font-bold px-3 py-2 rounded-lg transition flex items-center justify-between"
+                  >
+                    <span class="truncate">📂 ${subName}</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full ${isSubActive ? 'bg-elabd-rose text-elabd-dark font-black' : 'bg-elabd-roseLight text-elabd-brown'}">${subCount}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          `;
+        }
+
         return `
-          <button onclick="selectFolder('${fName.replace(/'/g, "\\'")}')" class="tab-btn ${isActive} w-full text-right text-xs font-bold px-3.5 py-3 rounded-xl transition flex items-center justify-between">
-            <span class="truncate">📁 ${fName}</span>
-            <span class="text-[11px] px-2 py-0.5 rounded-full bg-elabd-brown text-elabd-cream font-extrabold">${count}</span>
-          </button>
+          <div>
+            <button 
+              onclick="handleMainFolderClick('${escapeStr(mainName)}', ${hasSubs})" 
+              class="tab-btn ${isMainActive ? 'active' : 'text-elabd-brown hover:bg-elabd-roseLight/60'} w-full text-right text-xs font-extrabold px-3.5 py-3 rounded-xl transition flex items-center justify-between"
+            >
+              <span class="flex items-center gap-1.5 truncate">
+                ${hasSubs ? `<span class="text-[10px] transition-transform duration-200">${isExpanded ? '▼' : '◀'}</span>` : ''}
+                <span class="truncate">📁 ${mainName}</span>
+              </span>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-elabd-brown text-elabd-cream font-extrabold shrink-0">${node.totalCount}</span>
+            </button>
+            ${subMenuHtml}
+          </div>
         `;
       }).join('');
     }
 
-    function selectFolder(folderName) {
-      activeFolder = folderName;
+    function escapeStr(str) {
+      return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    // عند الضغط على القسم الرئيسي (مثل: المكافحة) يفتح/يغلق القائمة المنسدلة ويعرض ملفاته
+    function handleMainFolderClick(mainName, hasSubs) {
+      if (hasSubs) {
+        if (activeMainFolder === mainName && activeSubFolder === null) {
+          expandedFolders[mainName] = !expandedFolders[mainName];
+        } else {
+          expandedFolders[mainName] = true;
+        }
+      }
+      selectSection(mainName, null);
+    }
+
+    function selectSection(mainName, subName) {
+      activeMainFolder = mainName;
+      activeSubFolder = subName;
       activeFilePath = '';
       document.getElementById('searchInput').value = '';
       document.getElementById('fileViewerSection').classList.add('hidden');
@@ -343,23 +359,30 @@
       section.classList.remove('hidden');
 
       let filesToShow = [];
-      if (activeFolder === 'ALL' || query !== '') {
-        titleEl.innerHTML = `<span class="bg-elabd-brown text-elabd-cream px-3 py-1 rounded-lg text-xs">كل الأقسام</span> <span>جميع الملفات المرفوعة</span>`;
+      if (activeMainFolder === 'ALL' || query !== '') {
+        titleEl.innerHTML = `<span class="bg-elabd-brown text-elabd-cream px-3 py-1 rounded-lg text-xs">كل الأقسام</span> <span>جميع الملفات المرفوعة (${allFilesList.length})</span>`;
         filesToShow = allFilesList.filter(f =>
           query === '' ||
           f.title.toLowerCase().includes(query) ||
-          f.folder.toLowerCase().includes(query) ||
+          f.displayPath.toLowerCase().includes(query) ||
           f.ext.toLowerCase().includes(query)
         );
+      } else if (activeSubFolder) {
+        titleEl.innerHTML = `
+          <span class="bg-elabd-brown text-elabd-cream px-3 py-1 rounded-lg text-xs">${activeMainFolder}</span>
+          <span class="text-elabd-roseDark">⬅</span>
+          <span class="bg-elabd-rose text-elabd-dark px-3 py-1 rounded-lg text-xs font-black">${activeSubFolder}</span>
+        `;
+        filesToShow = (treeStructure[activeMainFolder]?.subFolders[activeSubFolder]) || [];
       } else {
-        titleEl.innerHTML = `<span class="bg-elabd-rose text-elabd-dark px-3 py-1 rounded-lg text-xs font-black">قسم</span> <span>${activeFolder}</span>`;
-        filesToShow = foldersMap[activeFolder] || [];
+        titleEl.innerHTML = `<span class="bg-elabd-rose text-elabd-dark px-3 py-1 rounded-lg text-xs font-black">قسم</span> <span>${activeMainFolder} (الكل)</span>`;
+        filesToShow = allFilesList.filter(f => f.mainFolder === activeMainFolder);
       }
 
       if (filesToShow.length === 0) {
         grid.innerHTML = `
           <div class="col-span-full bg-white rounded-2xl p-10 text-center border border-elabd-rose/40 text-elabd-brown/70 font-bold text-sm">
-            لا توجد ملفات مرفوعة حالياً — ارفع فولدراتك وملفاتك (PDF, Word, Excel, صور) على GitHub ثم اضغط "مزامنة الملفات".
+            لا توجد ملفات مطابقة.
           </div>
         `;
         return;
@@ -370,7 +393,7 @@
         const isSelected = activeFilePath === file.path ? 'ring-4 ring-elabd-brown bg-elabd-roseLight/50' : 'bg-white';
 
         return `
-          <button onclick="openUploadedFile('${file.path.replace(/'/g, "\\'")}')" class="doc-btn ${isSelected} text-right p-5 rounded-2xl border-2 border-elabd-rose/40 shadow-sm flex flex-col justify-between gap-4">
+          <button onclick="openUploadedFile('${escapeStr(file.path)}')" class="doc-btn ${isSelected} text-right p-5 rounded-2xl border-2 border-elabd-rose/40 shadow-sm flex flex-col justify-between gap-4">
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-2xl ${badge.iconBg} flex items-center justify-center text-2xl shrink-0 border border-elabd-rose/30">
                 ${badge.icon}
@@ -384,7 +407,7 @@
             </div>
 
             <div class="w-full pt-3 border-t border-elabd-rose/20 flex items-center justify-between text-xs">
-              <span class="text-elabd-brown/70 font-bold truncate">📁 ${file.folder}</span>
+              <span class="text-elabd-brown/70 font-bold truncate">📂 ${file.displayPath}</span>
               <span class="bg-elabd-brown text-elabd-cream font-extrabold px-3.5 py-1.5 rounded-xl shrink-0">
                 فتح الملف ⬅
               </span>
@@ -402,7 +425,6 @@
       return { label: 'وثيقة نصية', icon: '📄', iconBg: 'bg-elabd-roseLight text-elabd-brown', badge: 'bg-elabd-rose/40 text-elabd-dark' };
     }
 
-    // فتح وعرض أي ملف ترفعه داخل نفس الشاشة حسب نوعه
     async function openUploadedFile(filePath) {
       activeFilePath = filePath;
       renderFilesGrid();
@@ -420,7 +442,7 @@
             <div class="flex items-center gap-3">
               <div class="w-11 h-11 rounded-2xl bg-elabd-rose text-elabd-dark flex items-center justify-center text-2xl">${badge.icon}</div>
               <div>
-                <span class="bg-elabd-cream text-elabd-dark text-xs font-black px-3 py-0.5 rounded-full">${badge.label} • ${file.folder}</span>
+                <span class="bg-elabd-cream text-elabd-dark text-xs font-black px-3 py-0.5 rounded-full">${badge.label} • ${file.displayPath}</span>
                 <h2 class="text-base md:text-lg font-black text-white mt-0.5">${file.title}</h2>
               </div>
             </div>
@@ -447,7 +469,6 @@
       const contentBox = document.getElementById('innerFileContent');
 
       try {
-        // 1. إذا كان الملف PDF: يعرض داخل العارض المدمج مباشرة
         if (file.ext === 'pdf') {
           const pdfRes = await fetch(file.url);
           const pdfBlob = await pdfRes.blob();
@@ -458,7 +479,6 @@
           return;
         }
 
-        // 2. إذا كان الملف صورة (JPG / PNG / WEBP)
         if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(file.ext)) {
           contentBox.innerHTML = `
             <div class="word-viewer-sheet text-center">
@@ -468,7 +488,6 @@
           return;
         }
 
-        // 3. إذا كان الملف Word (.docx): يحوله Mammoth.js تلقائياً إلى صفحة Word منسقة وقابلة للطباعة
         if (file.ext === 'docx') {
           const res = await fetch(file.url);
           const arrayBuffer = await res.arrayBuffer();
@@ -477,7 +496,6 @@
           return;
         }
 
-        // 4. إذا كان الملف Excel (.xlsx / .xls / .csv): يحوله SheetJS تلقائياً إلى جدول منسق
         if (['xlsx', 'xls', 'csv'].includes(file.ext)) {
           const res = await fetch(file.url);
           const arrayBuffer = await res.arrayBuffer();
@@ -491,7 +509,6 @@
           return;
         }
 
-        // 5. إذا كان الملف نصياً (.txt / .html / .md)
         const textRes = await fetch(file.url);
         const textContent = await textRes.text();
         contentBox.innerHTML = `<div class="word-viewer-sheet whitespace-pre-line font-semibold">${textContent}</div>`;
